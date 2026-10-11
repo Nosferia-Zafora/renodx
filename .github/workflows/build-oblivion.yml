@@ -27,7 +27,7 @@ jobs:
           arch: amd64_x86
 
       - name: Configure CMake (x86)
-        run: cmake --preset clang-x86
+        run: cmake --preset clang-x86 -DCMAKE_C_COMPILER_TARGET=i686-pc-windows-msvc
 
       - name: Build renodx-oblivion.addon32
         run: cmake --build --preset clang-x86-release --target oblivion --verbose
