@@ -1,5 +1,10 @@
 {
   "$schema": "https://clshortfuse.github.io/renodx/renodx-metadata-schema.json",
   "id": "oblivion",
-  "title": "The Elder Scrolls IV: Oblivion"
+  "title": "The Elder Scrolls IV: Oblivion",
+  "deploy": {
+    "architecture": [
+      "x86"
+    ]
+  }
 }
