@@ -10,8 +10,10 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
   (`MultiSampleType 8` en el log); D3D9 no tiene texturas multisample, así que no se puede clonar.
 - Prueba 2 (21:39), con AA off, HDR on y ventana: **crash al cargar el addon**. El log se corta tras
   `[RenoDX] utils::swapchain attached.` (el log de ReShade es write-through, así que el corte es real).
-  Windows dejó un `AppCrash_Oblivion.exe_*` en `C:\ProgramData\Microsoft\Windows\WER\ReportArchive`
-  (todavía sin leer).
+  Informe WER (copia en `D:\Oblivion AI`): `c0000005` en `ntdll.dll` +0x5fbb3 (10.0.19041.7725, 32-bit),
+  último módulo cargado `renodx-oblivion.addon32`; también se cargaron `apphelp`/`AcLayers` (shims de compatibilidad).
+  **Intermitente**: hay otro crash a las 21:28:21 (antes de la prueba 1, que sí arrancó) con el mismo
+  hash de firma WER (`c614971f…`), o sea el mismo bug.
 
 ## Hallazgos verificados
 
@@ -32,6 +34,8 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
 
 ## PC de prueba
 
+- Carpeta de trabajo en la PC: `D:\Oblivion AI` (nada de archivos auxiliares en `D:\Oblivion`).
+
 - GOG, `D:\Oblivion`, RTX 3060, Samsung G50SF QD-OLED (pico 400 nits), ReShade 6.8.0 (full add-on).
 - Ini activo: `Documents\My Games\Oblivion\Oblivion.ini` (MO2 con `LocalSettings=false`).
   Backup: `Oblivion.ini.backup-antes-renodx`.
@@ -41,6 +45,7 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
 
 ## Pendiente
 
-1. Leer el informe WER del crash de la prueba 2.
+1. Crash intermitente al cargar el addon: reproducir abriendo `Oblivion.exe` directo varias veces;
+   si sigue, build con logging de debug para ubicar el punto exacto.
 2. Decidir el manejo de la ventana (fake fullscreen vs. modo ventana + borderless).
 3. Primera imagen HDR real y validar que `HDR004` deje valores > 1 en el backbuffer.
