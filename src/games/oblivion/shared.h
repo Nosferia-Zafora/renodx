@@ -27,7 +27,8 @@ struct ShaderInjectData {
   float swap_chain_custom_color_space;
   float custom_flip_uv_y;
   float sky_brightness;
-  float padding0;
+  // Stored inverted (0 = vanilla) so an uninjected 0 keeps vanilla behavior.
+  float eye_adaptation_reduction;
 };
 
 // D3D9 replacements are ps_2_0 so they still pair with the game's SM2 vertex
@@ -40,7 +41,8 @@ struct ShaderInjectData {
 
 float4 shader_injection[4] : register(c28);
 
-#define OBLIVION_SKY_BRIGHTNESS shader_injection[3][2]
+#define OBLIVION_SKY_BRIGHTNESS           shader_injection[3][2]
+#define OBLIVION_EYE_ADAPTATION_REDUCTION shader_injection[3][3]
 
 #else
 #if ((__SHADER_TARGET_MAJOR == 5 && __SHADER_TARGET_MINOR >= 1) || __SHADER_TARGET_MAJOR >= 6)

@@ -15,7 +15,8 @@
 // and the sky is LDR by design (SKY.vso outputs it through the clamped oD0).
 // SKY.pso and SKYTEX.pso are replaced with ps_2_0 versions (so they still
 // pair with the game's SM2 vertex shaders) to add an optional sky brightness
-// before bloom and eye adaptation. Default 1.0 matches vanilla.
+// before bloom and eye adaptation, and HDR004.pso (final composite) is
+// replaced to make eye adaptation adjustable. Defaults match vanilla.
 
 #define ImTextureID ImU64
 
@@ -189,6 +190,17 @@ renodx::utils::settings::Settings settings = {
         .min = 1.f,
         .max = 4.f,
         .format = "%.2f",
+    },
+    new renodx::utils::settings::Setting{
+        .key = "FxEyeAdaptation",
+        .binding = &shader_injection.eye_adaptation_reduction,
+        .default_value = 100.f,
+        .label = "Eye Adaptation",
+        .section = "Effects",
+        .tooltip = "How much the game darkens the scene when bright areas such as the sky are in view."
+                   "\n100 matches vanilla.",
+        .max = 100.f,
+        .parse = [](float value) { return 1.f - (value * 0.01f); },
     },
     new renodx::utils::settings::Setting{
         .key = "SwapChainCustomColorSpace",
