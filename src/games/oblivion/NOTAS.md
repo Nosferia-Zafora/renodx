@@ -36,6 +36,12 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
   `fSunBrightness=0.0`, `fSunlightDimmer=1.3`, `fGrassDimmer=1.3`, `fTreeDimmer=1.2`, `fUpperLUMClamp=1.0`.
 - Conclusión: la cadena backbuffer→proxy es la correcta; la falta de brillos es del contenido. El rango
   real tiene que salir del motor (parámetros de sol/cielo) o de los shaders de escena, no del final.
+- Prueba ini 1 (`fSkyBrightness` 0.5→1.5, `fSunBrightness` 0→1, `fSunlightDimmer` 1.3→1.0): **no crea
+  rango**. Cielo máx 0.872 → 0.883 (sigue < 1; el cielo está acotado en su shader o textura). Solo sube
+  los medios (p50 0.36 → 0.53) y AvgLum (suma 1.11 → 1.48 > 1.2, así que la adaptación ahora oscurece ~0.81).
+  Descartada. Siguiente: identificar el shader del cielo/sol y buscar el `saturate`/clamp.
+- `iLocation X/Y=-32000` aparece si el juego se cierra minimizado (ventana fuera de pantalla). Lanzador
+  `D:\Oblivion AI\Jugar Oblivion.bat` lo resetea y evita abrir dos instancias.
 
 ## Hallazgos verificados
 
