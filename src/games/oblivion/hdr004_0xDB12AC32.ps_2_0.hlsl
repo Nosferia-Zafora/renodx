@@ -19,7 +19,10 @@ sampler2D AvgLum : register(s2);     // 1x1 FP16
 
 float4 main(float2 texcoord0 : TEXCOORD0, float2 texcoord1 : TEXCOORD1) : COLOR {
   float avg_lum = max(dot(tex2D(AvgLum, texcoord0).rgb, 1.f), 1e-4f);
-  avg_lum = exp2(lerp(log2(avg_lum), log2(AVG_LUM_REFERENCE), OBLIVION_EYE_ADAPTATION_REDUCTION));
+  // Only damp views brighter than the reference (sky, sun); night and
+  // interiors keep vanilla exposure.
+  float damped_avg_lum = exp2(lerp(log2(avg_lum), log2(AVG_LUM_REFERENCE), OBLIVION_EYE_ADAPTATION_REDUCTION));
+  avg_lum = (avg_lum > AVG_LUM_REFERENCE) ? damped_avg_lum : avg_lum;
   float inverse = 1.f / max(avg_lum, HDRParam.x);
 
   float3 bloom = max(tex2D(Src0, texcoord0).rgb * (0.5f * inverse), 0.f);
