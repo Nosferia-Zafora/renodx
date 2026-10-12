@@ -49,6 +49,14 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
   mazmorra; ahí sí puede haber valores > 1 reales.
 - Crash: build #5 sube `renodx-oblivion.pdb`; `D:\Oblivion AI\oblivion-crash-dumps.reg` activa
   LocalDumps en `D:\Oblivion AI\dumps` para simbolizar el crash con `llvm-symbolizer`.
+- **Crash con DevKit resuelto (causa):** dump `Oblivion.exe.47460.dmp` → AV leyendo `0x15cd5000` en
+  `renodx-oblivion.addon32+0x18AC0`, dentro de `DllMain` (`AddCallback` sobre `resource::SharedData`,
+  vectores en +0x800/+0x80C/+0x818 con stride de 12 bytes = layout Release). El DevKit es Debug
+  (`_ITERATOR_DEBUG_LEVEL=2`, vectores de 16 bytes) y crea el `SharedData` cross-addon primero, así que
+  el addon Release lee basura. **Regla: addon y DevKit con el mismo tipo de build.** Desde el build #6, el
+  artifact `renodx-devkit` incluye `renodx-oblivion.addon32` Debug y su PDB.
+  El segundo dump (mismo PID) es un fallo secundario en `ntdll+0x5fbb3` escribiendo `0x14`; es la misma
+  firma que el crash intermitente *sin* DevKit, que sigue sin explicar.
 - `iLocation X/Y=-32000` aparece si el juego se cierra minimizado (ventana fuera de pantalla). Lanzador
   `D:\Oblivion AI\Jugar Oblivion.bat` lo resetea y evita abrir dos instancias.
 
