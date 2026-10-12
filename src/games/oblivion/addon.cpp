@@ -11,9 +11,11 @@
 // FP16, presents it through a D3D11 display proxy, and does tone mapping in
 // the proxy pass (swap_chain_proxy_pixel_shader.ps_5_x.hlsl).
 //
-// No D3D9 shaders are replaced: HDR004.vso is shared with the refraction,
-// blur and hit shaders, so swapping it to vs_3_0 (needed for a ps_3_0
-// replacement) would break them.
+// The scene itself is near SDR (DevKit capture: 99.9% of pixels below 1.0),
+// and the sky is LDR by design (SKY.vso outputs it through the clamped oD0).
+// SKY.pso and SKYTEX.pso are replaced with ps_2_0 versions (so they still
+// pair with the game's SM2 vertex shaders) to add an optional sky brightness
+// before bloom and eye adaptation. Default 1.0 matches vanilla.
 
 #define ImTextureID ImU64
 
@@ -31,7 +33,9 @@
 
 namespace {
 
-renodx::mods::shader::CustomShaders custom_shaders = {};
+renodx::mods::shader::CustomShaders custom_shaders = {
+    __ALL_CUSTOM_SHADERS,
+};
 
 ShaderInjectData shader_injection;
 
@@ -175,6 +179,18 @@ renodx::utils::settings::Settings settings = {
         .is_visible = []() { return current_settings_mode >= 1; },
     },
     new renodx::utils::settings::Setting{
+        .key = "FxSkyBrightness",
+        .binding = &shader_injection.sky_brightness,
+        .default_value = 1.f,
+        .label = "Sky Brightness",
+        .section = "Effects",
+        .tooltip = "Brightens the sky, sun, moons and clouds before bloom and eye adaptation."
+                   "\nThe vanilla sky never exceeds SDR white; 1.00 matches vanilla.",
+        .min = 1.f,
+        .max = 4.f,
+        .format = "%.2f",
+    },
+    new renodx::utils::settings::Setting{
         .key = "SwapChainCustomColorSpace",
         .binding = &shader_injection.swap_chain_custom_color_space,
         .value_type = renodx::utils::settings::SettingValueType::INTEGER,
@@ -244,8 +260,12 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
     case DLL_PROCESS_ATTACH:
       if (!reshade::register_addon(h_module)) return FALSE;
 
+      // Same D3D9 replacement setup as Alice: Madness Returns, but the
+      // replacements are ps_2_0 (c0-c31), so inject into c28-c31.
+      renodx::mods::shader::force_pipeline_cloning = true;
       renodx::mods::shader::expected_constant_buffer_space = 50;
       renodx::mods::shader::expected_constant_buffer_index = 13;
+      renodx::mods::shader::constant_buffer_offset = OBLIVION_INJECTION_REGISTER * 4;
 
       renodx::mods::swapchain::expected_constant_buffer_index = 13;
       renodx::mods::swapchain::expected_constant_buffer_space = 50;

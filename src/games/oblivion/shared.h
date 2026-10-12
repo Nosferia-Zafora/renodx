@@ -26,11 +26,23 @@ struct ShaderInjectData {
 
   float swap_chain_custom_color_space;
   float custom_flip_uv_y;
+  float sky_brightness;
   float padding0;
-  float padding1;
 };
 
+// D3D9 replacements are ps_2_0 so they still pair with the game's SM2 vertex
+// shaders. ps_2_0 only has c0-c31, so the injection lives in the last four
+// registers (see constant_buffer_offset in addon.cpp).
+#define OBLIVION_INJECTION_REGISTER 28
+
 #ifndef __cplusplus
+#if (__SHADER_TARGET_MAJOR == 2)
+
+float4 shader_injection[4] : register(c28);
+
+#define OBLIVION_SKY_BRIGHTNESS shader_injection[3][2]
+
+#else
 #if ((__SHADER_TARGET_MAJOR == 5 && __SHADER_TARGET_MINOR >= 1) || __SHADER_TARGET_MAJOR >= 6)
 cbuffer shader_injection : register(b13, space50) {
 #else
@@ -60,6 +72,7 @@ cbuffer shader_injection : register(b13) {
 
 #include "../../shaders/renodx.hlsl"
 
+#endif  // __SHADER_TARGET_MAJOR == 2
 #endif  // __cplusplus
 
 #endif  // SRC_GAMES_OBLIVION_SHARED_H_
