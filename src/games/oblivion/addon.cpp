@@ -188,7 +188,7 @@ renodx::utils::settings::Settings settings = {
         .tooltip = "Brightens the sky, sun, moons and clouds before bloom and eye adaptation."
                    "\nThe vanilla sky never exceeds SDR white; 1.00 matches vanilla.",
         .min = 1.f,
-        .max = 4.f,
+        .max = 2.f,
         .format = "%.2f",
     },
     new renodx::utils::settings::Setting{
@@ -197,8 +197,8 @@ renodx::utils::settings::Settings settings = {
         .default_value = 100.f,
         .label = "Eye Adaptation",
         .section = "Effects",
-        .tooltip = "How much the game darkens the scene when bright areas such as the sky are in view."
-                   "\n100 matches vanilla.",
+        .tooltip = "How strongly exposure reacts to bright or dark views, such as looking at the sun."
+                   "\nLower values damp the reaction. 100 matches vanilla.",
         .max = 100.f,
         .parse = [](float value) { return 1.f - (value * 0.01f); },
     },

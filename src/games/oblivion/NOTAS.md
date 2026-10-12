@@ -75,6 +75,17 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
   invertido para que 0 sin inyectar sea vanilla). Solo cubre el paquete 13 (`0xDB12AC32`); la variante
   `0xD32BC79A` (paquetes pares) no está reemplazada.
 
+## Prueba build #8 (2026-10-12): regresión
+
+- Con Sky 2.0, Eye Adaptation 50, Peak 405: cielo blanco sin nubes, rocas "quemadas" y el menú
+  también quemado (el menú dibuja la escena detrás a través de `HDR004`).
+- Causa probable: el slider usaba `1/HDRParam.x` como referencia "sin adaptación"; si `HDRParam.x` es
+  chico (no se puede medir: el DevKit no expone constantes D3D9), eso multiplica toda la imagen.
+  Además Sky ×2 lleva el cielo (~0.87 sRGB) a ~3.4× lineal: con pico 400 el tonemapper lo aplasta a
+  blanco y el bright-pass genera bloom fuerte.
+- Build #9: la adaptación se amortigua en log2 hacia AvgLum de referencia 1.11 (medido) y ya no usa
+  `HDRParam.x`; Sky Brightness con máximo 2.0.
+
 ## Hallazgos verificados
 
 - Pipeline HDR de Oblivion: `HDR000`–`HDR007` en `shaderpackage010`–`019`. Los paquetes con HDR son
