@@ -65,6 +65,16 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
 - `iLocation X/Y=-32000` aparece si el juego se cierra minimizado (ventana fuera de pantalla). Lanzador
   `D:\Oblivion AI\Jugar Oblivion.bat` lo resetea y evita abrir dos instancias.
 
+## Prueba build #7 (2026-10-12, addon Release solo)
+
+- Arranca sin crash, `SKY`/`SKYTEX` registrados como reemplazo en runtime.
+- Usuario: Peak Brightness 400 vs 1000 se nota "sutil" (esperable: el contenido casi no pasa de 1);
+  el sol brilla; mirar al sol y bajar la cámara produce un salto fuerte de adaptación (AvgLum).
+- Las capturas de ReShade (Impr Pant) salen aplanadas/lavadas: no sirven para juzgar HDR.
+- Build #8: `hdr004_0xDB12AC32.ps_2_0.hlsl` + slider "Eye Adaptation" (0–100, 100 = vanilla; se inyecta
+  invertido para que 0 sin inyectar sea vanilla). Solo cubre el paquete 13 (`0xDB12AC32`); la variante
+  `0xD32BC79A` (paquetes pares) no está reemplazada.
+
 ## Hallazgos verificados
 
 - Pipeline HDR de Oblivion: `HDR000`–`HDR007` en `shaderpackage010`–`019`. Los paquetes con HDR son
