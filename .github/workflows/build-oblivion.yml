@@ -36,7 +36,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: renodx-oblivion
-          path: build32/release/renodx-oblivion.addon32
+          # The PDB lets crash dumps be symbolized.
+          path: |
+            build32/release/renodx-oblivion.addon32
+            build32/release/renodx-oblivion.pdb
           if-no-files-found: error
 
       # Live inspection tooling (see docs/DEVKIT_MCP.md); debug builds as the
