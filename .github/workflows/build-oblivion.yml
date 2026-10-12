@@ -44,8 +44,10 @@ jobs:
 
       # Live inspection tooling (see docs/DEVKIT_MCP.md); debug builds as the
       # setup-game-mod-dev skill recommends.
-      - name: Build DevKit and MCP bridge
-        run: cmake --build --preset clang-x86-debug --target devkit mcp_bridge
+      # The game addon must match the DevKit build type: RenoDX addons share
+      # STL containers across modules, and Debug/Release layouts differ.
+      - name: Build DevKit, MCP bridge and debug addon
+        run: cmake --build --preset clang-x86-debug --target devkit mcp_bridge oblivion
 
       - name: Upload DevKit
         uses: actions/upload-artifact@v4
@@ -54,4 +56,6 @@ jobs:
           path: |
             build32/debug/renodx-devkit.addon32
             build32/debug/renodx-mcp-bridge.exe
+            build32/debug/renodx-oblivion.addon32
+            build32/debug/renodx-oblivion.pdb
           if-no-files-found: error
