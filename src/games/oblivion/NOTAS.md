@@ -39,7 +39,16 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
 - Prueba ini 1 (`fSkyBrightness` 0.5→1.5, `fSunBrightness` 0→1, `fSunlightDimmer` 1.3→1.0): **no crea
   rango**. Cielo máx 0.872 → 0.883 (sigue < 1; el cielo está acotado en su shader o textura). Solo sube
   los medios (p50 0.36 → 0.53) y AvgLum (suma 1.11 → 1.48 > 1.2, así que la adaptación ahora oscurece ~0.81).
-  Descartada. Siguiente: identificar el shader del cielo/sol y buscar el `saturate`/clamp.
+  Descartada (ini restaurado).
+- Cielo (paquete 13): `SKY.vso` (`0xC5F76628`) mezcla 3 `BlendColor` (colores del clima, 8 bits) y los
+  saca por **`oD0`, que en SM2 se clampa a [0,1] por hardware**; `SKY.pso` (`0x4F18027E`) solo hace
+  `v0 * Params.y`. `SKYTEX.pso` (`0xCFD676B1`, sol/nubes) = textura DXT * `v0` * `Params.y`. El cielo es
+  LDR por diseño: no hay dato HDR escondido. Cualquier brillo extra de cielo/sol es un realce (slider
+  opcional, neutro por defecto), no una recuperación.
+- Pendiente medir: fuego/magia/partículas (`PAR*`, blending aditivo en el RT FP16) de noche o en una
+  mazmorra; ahí sí puede haber valores > 1 reales.
+- Crash: build #5 sube `renodx-oblivion.pdb`; `D:\Oblivion AI\oblivion-crash-dumps.reg` activa
+  LocalDumps en `D:\Oblivion AI\dumps` para simbolizar el crash con `llvm-symbolizer`.
 - `iLocation X/Y=-32000` aparece si el juego se cierra minimizado (ventana fuera de pantalla). Lanzador
   `D:\Oblivion AI\Jugar Oblivion.bat` lo resetea y evita abrir dos instancias.
 
