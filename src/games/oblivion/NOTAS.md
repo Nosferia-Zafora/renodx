@@ -57,6 +57,11 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
   artifact `renodx-devkit` incluye `renodx-oblivion.addon32` Debug y su PDB.
   El segundo dump (mismo PID) es un fallo secundario en `ntdll+0x5fbb3` escribiendo `0x14`; es la misma
   firma que el crash intermitente *sin* DevKit, que sigue sin explicar.
+- Build #6 (DevKit Debug + addon Debug): cargan juntos sin crash, D3D9Ex OK, pero **no se ve el juego**.
+  La captura de ReShade del backbuffer D3D9 muestra solo el overlay acumulándose (34 draws por frame,
+  todos de ReShade). El `device_proxy` compartido elige como manejador al primer módulo registrado (el
+  DevKit), que no tiene la configuración del proxy del addon. **No combinar DevKit y addon:** DevKit solo
+  para analizar, addon Release solo para ver.
 - `iLocation X/Y=-32000` aparece si el juego se cierra minimizado (ventana fuera de pantalla). Lanzador
   `D:\Oblivion AI\Jugar Oblivion.bat` lo resetea y evita abrir dos instancias.
 
