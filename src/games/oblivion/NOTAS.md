@@ -23,6 +23,20 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
   se usa el DevKit (build #4 de la rama `oblivion-dev` incluye `renodx-devkit.addon32` y
   `renodx-mcp-bridge.exe`).
 
+## DevKit (2026-10-12, solo DevKit cargado, juego vanilla con HDR on)
+
+- `HDR004` (`0xDB12AC32`, paquete 13) es el draw 997 de 1024 y escribe **directo al backbuffer**
+  (`b8g8r8x8`, 2560x1440). No hay RT intermedio de 8 bits. Entradas, todas FP16:
+  `s1` escena 2560x1440, `s0` bloom 256x256, `s2` AvgLum 1x1.
+- Fórmula real: `scene * x / max(sum(avg), x) + bloom * 0.5 / max(sum(avg), x)` (x = `HDRParam.x`); el
+  factor de escena es ≤ 1, o sea que la adaptación solo oscurece.
+- **El contenido casi no supera 1:** escena luma p50 0.358, p99 0.814, p99.9 0.991, máx 1.389; solo el 0.09%
+  > 1, y es piedra/camino al sol (no el cielo). Bloom máx 0.91 luma. AvgLum (suma de canales) ≈ 1.11.
+- El cielo no es brillante (< 0.9) porque el ini lo atenúa a propósito: `fSkyBrightness=0.5`,
+  `fSunBrightness=0.0`, `fSunlightDimmer=1.3`, `fGrassDimmer=1.3`, `fTreeDimmer=1.2`, `fUpperLUMClamp=1.0`.
+- Conclusión: la cadena backbuffer→proxy es la correcta; la falta de brillos es del contenido. El rango
+  real tiene que salir del motor (parámetros de sol/cielo) o de los shaders de escena, no del final.
+
 ## Hallazgos verificados
 
 - Pipeline HDR de Oblivion: `HDR000`–`HDR007` en `shaderpackage010`–`019`. Los paquetes con HDR son
