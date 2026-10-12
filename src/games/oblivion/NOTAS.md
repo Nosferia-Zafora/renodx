@@ -15,6 +15,14 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
   **Intermitente**: hay otro crash a las 21:28:21 (antes de la prueba 1, que sí arrancó) con el mismo
   hash de firma WER (`c614971f…`), o sea el mismo bug.
 
+- Prueba 3 (21:47), ventana 2560x1440, abriendo `Oblivion.exe` directo: arrancó al **3er intento** (los
+  otros dos son el crash intermitente). Device D3D9Ex, proxy D3D11 OK, sin errores de clonado, cierre limpio.
+  **Pero la imagen sigue recortada en SDR**: Peak Brightness cambia la imagen solo hasta ~140 nits; de 200
+  a 1000 se ve igual (Game Brightness 203). El log no muestra ninguna ampliación de recursos de 8 bits.
+  Hipótesis: `HDR004` escribe en un render target intermedio de 8 bits, no en el backbuffer. Para probarlo
+  se usa el DevKit (build #4 de la rama `oblivion-dev` incluye `renodx-devkit.addon32` y
+  `renodx-mcp-bridge.exe`).
+
 ## Hallazgos verificados
 
 - Pipeline HDR de Oblivion: `HDR000`–`HDR007` en `shaderpackage010`–`019`. Los paquetes con HDR son
@@ -47,5 +55,5 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
 
 1. Crash intermitente al cargar el addon: reproducir abriendo `Oblivion.exe` directo varias veces;
    si sigue, build con logging de debug para ubicar el punto exacto.
-2. Decidir el manejo de la ventana (fake fullscreen vs. modo ventana + borderless).
-3. Primera imagen HDR real y validar que `HDR004` deje valores > 1 en el backbuffer.
+2. Modo ventana funciona; la ruta "fake fullscreen" deja una ventana chica (pendiente).
+3. Con DevKit: ubicar el render target de `HDR004` y su formato; ampliarlo o reemplazar el shader.
