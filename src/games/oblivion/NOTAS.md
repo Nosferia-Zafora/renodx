@@ -86,6 +86,13 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión. Se actualiza 
 - Build #9: la adaptación se amortigua en log2 hacia AvgLum de referencia 1.11 (medido) y ya no usa
   `HDRParam.x`; Sky Brightness con máximo 2.0.
 
+## Prueba build #9 (2026-10-12)
+
+- Sky 1.00 / Eye Adaptation 100: igual que el build 7 (efectos nuevos neutros), que al usuario le gusta.
+- Sky 1.2 / Eye Adaptation 60: reduce el salto al mirar el sol; "se siente tolerable bastante".
+- Build #10 (amortiguar solo vistas más brillantes que la referencia) se lanzó sin avisar y **no se probó**.
+- Falta: prueba de noche/mazmorra con 1.2/60.
+
 ## Hallazgos verificados
 
 - Pipeline HDR de Oblivion: `HDR000`–`HDR007` en `shaderpackage010`–`019`. Los paquetes con HDR son
