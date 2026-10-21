@@ -28,4 +28,6 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión.
 - Duda abierta: Source puede escribir con `SRGBWRITEENABLE`; en FP16 eso se ignora y el buffer
   queda lineal. Setting "Game Output Encoding" (sRGB/Linear) para decidirlo en el juego:
   elegir el que con Tone Mapper = Vanilla se vea igual al original.
+- Build: `gh workflow run build-oblivion.yml --ref darkmessiah-dev` (en esta rama ese workflow compila
+  Dark Messiah; un workflow nuevo solo se puede despachar si está en `main`).
 - **No cargar el DevKit junto con el addon** (comparten el device proxy; ver notas de Oblivion).
