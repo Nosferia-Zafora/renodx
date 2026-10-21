@@ -29,6 +29,33 @@
 
 namespace renodx::utils::platform {
 
+// HeapAlloc only guarantees MEMORY_ALLOCATION_ALIGNMENT (8 bytes on x86), but
+// shared types can need 16 (SSE stores). Over-aligned requests get a padded
+// block whose start is stored just before the aligned address.
+inline void* AllocateProcessMemory(std::size_t size, std::size_t alignment, DWORD flags = 0u) {
+  if (alignment <= MEMORY_ALLOCATION_ALIGNMENT) {
+    return ::HeapAlloc(::GetProcessHeap(), flags, size);
+  }
+  if (size > (std::numeric_limits<std::size_t>::max)() - alignment) return nullptr;
+
+  auto* block = static_cast<std::byte*>(::HeapAlloc(::GetProcessHeap(), flags, size + alignment));
+  if (block == nullptr) return nullptr;
+
+  // block is at least 8-byte aligned, so the gap is at least 8 bytes.
+  auto* aligned = reinterpret_cast<std::byte*>(
+      (reinterpret_cast<std::uintptr_t>(block) + alignment) & ~(static_cast<std::uintptr_t>(alignment) - 1u));
+  reinterpret_cast<void**>(aligned)[-1] = block;
+  return aligned;
+}
+
+inline void FreeProcessMemory(void* memory, std::size_t alignment) {
+  if (memory == nullptr) return;
+  ::HeapFree(
+      ::GetProcessHeap(),
+      0,
+      alignment <= MEMORY_ALLOCATION_ALIGNMENT ? memory : static_cast<void**>(memory)[-1]);
+}
+
 template <typename T>
 struct ProcessAllocator {
   using value_type = T;
@@ -45,7 +72,7 @@ struct ProcessAllocator {
       throw std::bad_array_new_length();
     }
 
-    auto* storage = static_cast<T*>(::HeapAlloc(::GetProcessHeap(), 0, count * sizeof(T)));
+    auto* storage = static_cast<T*>(AllocateProcessMemory(count * sizeof(T), alignof(T)));
     if (storage == nullptr) {
       throw std::bad_alloc();
     }
@@ -54,8 +81,7 @@ struct ProcessAllocator {
 
   void deallocate(T* storage, std::size_t count) noexcept {  // NOLINT(readability-identifier-naming)
     (void)count;
-    if (storage == nullptr) return;
-    ::HeapFree(::GetProcessHeap(), 0, storage);
+    FreeProcessMemory(storage, alignof(T));
   }
 };
 
@@ -75,7 +101,7 @@ inline bool operator!=(const ProcessAllocator<T>& left, const ProcessAllocator<U
 
 template <typename T, typename... Args>
 inline T* CreateSharedObject(Args&&... args) {
-  auto* storage = static_cast<T*>(::HeapAlloc(::GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(T)));
+  auto* storage = static_cast<T*>(AllocateProcessMemory(sizeof(T), alignof(T), HEAP_ZERO_MEMORY));
   assert(storage != nullptr);
   if (storage == nullptr) return nullptr;
 
@@ -87,7 +113,7 @@ inline void DeleteSharedObject(T* object) {
   if (object == nullptr) return;
 
   object->~T();
-  ::HeapFree(::GetProcessHeap(), 0, object);
+  FreeProcessMemory(object, alignof(T));
 }
 
 template <typename T>

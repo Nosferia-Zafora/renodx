@@ -31,3 +31,16 @@ Bitácora para retomar el trabajo sin depender de ninguna sesión.
 - Build: `gh workflow run build-oblivion.yml --ref darkmessiah-dev` (en esta rama ese workflow compila
   Dark Messiah; un workflow nuevo solo se puede despachar si está en `main`).
 - **No cargar el DevKit junto con el addon** (comparten el device proxy; ver notas de Oblivion).
+
+## Prueba build #1 (2026-10-20 23:43): crash al cargar
+
+- El log termina en `utils::swapchain attached.`, igual que el crash intermitente de Oblivion.
+- Dump `mm.exe.18184.dmp`: `c0000005` en `renodx-darkmessiah.addon32+0x6A8FD`, dentro de `DllMain`
+  (attach de `resource::upgrade` vía `device_proxy::Use`): `movaps %xmm0, 0x40(%eax)` con
+  `eax = 0x0570E978`, que no está alineado a 16.
+- Causa: `platform::CreateSharedObject` y `ProcessAllocator` usan `HeapAlloc`, que en x86 solo
+  garantiza 8 bytes de alineación; el compilador asume 16 para ese tipo (stores SSE). En x64
+  `HeapAlloc` da 16, por eso upstream no lo ve. Es intermitente: depende de la dirección que toque.
+  Probablemente es el mismo crash intermitente de Oblivion.
+- Build #2: `AllocateProcessMemory`/`FreeProcessMemory` en `src/utils/platform.hpp` rellenan y
+  alinean cuando `alignof(T) > MEMORY_ALLOCATION_ALIGNMENT` (sin cambios en x64 para tipos ≤ 16).
