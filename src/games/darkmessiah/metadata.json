@@ -1,0 +1,10 @@
+{
+  "$schema": "https://clshortfuse.github.io/renodx/renodx-metadata-schema.json",
+  "id": "darkmessiah",
+  "title": "Dark Messiah of Might and Magic",
+  "deploy": {
+    "architecture": [
+      "x86"
+    ]
+  }
+}
